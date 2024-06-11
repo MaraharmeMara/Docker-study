@@ -1,14 +1,17 @@
-# Käytä uusinta Ubuntu-kuvaa pohjana
+# Käytetään Ubuntu latest pohjalevykuvaa
 FROM ubuntu:latest
 
-# Päivitä ja asenna curl
-RUN apt-get update && apt-get install -y curl
+# Päivitetään pakettilista ja asennetaan tarvittavat ohjelmistot
+RUN apt-get update && apt-get install -y \
+    curl \
+    python-is-python3
 
-# Kopioi Bash-skripti konttiin
-COPY fetch_website.sh /usr/local/bin/fetch_website.sh
+# Ladataan yt-dlp ja annetaan sille suoritus oikeudet
+RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp && \
+    chmod a+rx /usr/local/bin/yt-dlp
 
-# Anna suoritusoikeudet skriptille
-RUN chmod +x /usr/local/bin/fetch_website.sh
+# Asetetaan ympäristömuuttuja lokalisaatiota varten
+ENV LC_ALL=C.UTF-8
 
-# Määritä suoritettava komento, kun kontti käynnistetään
-CMD ["/usr/local/bin/fetch_website.sh"]
+# Määritetään ENTRYPOINT suorittamaan yt-dlp
+ENTRYPOINT ["yt-dlp"]
